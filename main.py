@@ -161,6 +161,8 @@ class V2EXMonitor:
                 if last_modified <= self.processed_posts[post_id]["last_modified"]:
                     continue
 
+            logging.info("处理帖子: %s, Url: %s", post["title"], post["url"])
+
             # 抓取内容
             content = self._scrape_content(post["url"])
             if not content:
