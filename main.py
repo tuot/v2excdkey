@@ -4,6 +4,7 @@ import time
 import requests
 import logging
 from datetime import datetime
+from newspaper import Article
 from dotenv import load_dotenv
 from typing import Dict, List, Optional
 import smtplib
@@ -161,12 +162,23 @@ class V2EXMonitor:
                 if last_modified <= self.processed_posts[post_id]["last_modified"]:
                     continue
 
-            logging.info("处理帖子: %s, Url: %s", post["title"], post["url"])
-
+            logging.info(
+                "处理帖子, 更新时间： %s, Title: %s, Url: %s",
+                datetime.fromtimestamp(last_modified).strftime("%Y-%m-%d %H:%M:%S"),
+                post["title"],
+                post["url"],
+            )
             # 抓取内容
             content = self._scrape_content(post["url"])
             if not content:
-                continue
+                article = Article(post["url"], fetch_images=False)
+                article.download()
+                article.parse()
+                if article.text:
+                    content = article.text
+                else:
+                    logging.error("无法抓取内容")
+                    continue
 
             # 提取信息
             extracted_info = self._extract_codes_with_ai(content)
