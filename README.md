@@ -4,14 +4,17 @@
 
 ## 功能特点
 
-- 每分钟检查一次 V2EX 最新帖子
+- 定期检查 V2EX 最新帖子（默认每2分钟）
 - 自动识别包含激活码相关关键词的帖子
 - 使用 AI 提取激活码和附言信息
 - 支持 Bark 和邮件两种通知方式
 - 记录已处理帖子的时间戳，避免重复处理
 - 完整的日志记录
+- 支持 Docker 部署
 
 ## 安装
+
+### 方式一：直接安装
 
 1. 克隆仓库：
 ```bash
@@ -21,7 +24,11 @@ cd [repository-name]
 
 2. 安装依赖：
 ```bash
-pip install -r requirements.txt
+uv venv
+source .venv/bin/activate  # Linux/macOS
+# 或
+.venv\Scripts\activate  # Windows
+uv pip install .
 ```
 
 3. 配置环境变量：
@@ -29,6 +36,25 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 然后编辑 `.env` 文件，填入相应的配置信息。
+
+### 方式二：Docker 安装
+
+1. 克隆仓库：
+```bash
+git clone [repository-url]
+cd [repository-name]
+```
+
+2. 配置环境变量：
+```bash
+cp .env.example .env
+```
+然后编辑 `.env` 文件，填入相应的配置信息。
+
+3. 构建并运行容器：
+```bash
+docker-compose up -d
+```
 
 ## 配置说明
 
@@ -45,28 +71,43 @@ cp .env.example .env
 
 - 通知设置：
   - `NOTIFICATION_TYPE`: 通知类型（bark 或 email）
-  - 如果使用邮件通知，需要配置邮件服务器相关信息
+  - 如果使用邮件通知，需要配置以下信息：
+    - `EMAIL_SMTP_SERVER`: SMTP 服务器地址
+    - `EMAIL_SMTP_PORT`: SMTP 服务器端口
+    - `EMAIL_USERNAME`: 邮箱用户名
+    - `EMAIL_PASSWORD`: 邮箱密码
+    - `EMAIL_RECIPIENT`: 接收通知的邮箱地址
 
 - 存储设置：
   - `STORAGE_FILE`: 已处理帖子记录文件路径
 
-- 关键词设置：
+- 监控设置：
   - `KEYWORDS`: 监控的关键词，用逗号分隔
+  - `CRAWL_TIMEOUT`: 爬取间隔时间（秒），默认 120 秒
 
 ## 使用方法
 
-1. 确保所有配置都正确设置
-2. 运行脚本：
+### 直接运行
 ```bash
 python main.py
 ```
 
+### Docker 运行
+```bash
+docker-compose up -d
+```
+
 ## 日志
 
-脚本运行日志保存在 `v2ex_monitor.log` 文件中。
+脚本运行日志会输出到标准输出，建议使用 Docker 的日志功能或重定向到文件：
+```bash
+docker-compose logs -f
+```
 
 ## 注意事项
 
 - 确保有稳定的网络连接
-- 建议使用 screen 或 tmux 等工具在后台运行脚本
-- 定期检查日志文件，确保脚本正常运行
+- 建议使用 Docker 部署，便于管理和维护
+- 定期检查日志，确保脚本正常运行
+- 如果使用邮件通知，请确保邮件服务器配置正确
+- 建议使用 screen 或 tmux 等工具在后台运行脚本（非 Docker 方式）
