@@ -2,6 +2,7 @@ import os
 import json
 import time
 import requests
+import pytz
 import logging
 from datetime import datetime
 from newspaper import Article
@@ -164,7 +165,10 @@ class V2EXMonitor:
 
             logging.info(
                 "处理帖子, 更新时间： %s, Title: %s, Url: %s",
-                datetime.fromtimestamp(last_modified).strftime("%Y-%m-%d %H:%M:%S"),
+                datetime.fromtimestamp(
+                    last_modified,
+                    pytz.timezone("Asia/Shanghai"),
+                ).strftime("%Y-%m-%d %H:%M:%S"),
                 post["title"],
                 post["url"],
             )

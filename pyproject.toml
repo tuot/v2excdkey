@@ -8,5 +8,6 @@ dependencies = [
     "lxml-html-clean>=0.4.2",
     "newspaper3k>=0.2.8",
     "python-dotenv>=1.1.0",
+    "pytz>=2025.2",
     "requests>=2.32.3",
 ]
