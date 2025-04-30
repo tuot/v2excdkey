@@ -215,7 +215,10 @@ class V2EXMonitor:
         while True:
             try:
                 logging.info(
-                    "检查V2EX帖子 %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    "检查V2EX帖子 %s",
+                    datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
                 )
                 self.process_posts()
                 logging.info("检查V2EX帖子完成")
