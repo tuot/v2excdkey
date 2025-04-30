@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  v2ex-monitor:
+    build: .
+    container_name: v2ex-monitor
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./processed_posts.json:/app/processed_posts.json
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3" 
+    networks:
+      - v2ex-monitor
+
+networks:
+  v2ex-monitor:
+    driver: bridge
