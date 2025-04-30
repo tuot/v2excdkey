@@ -12,6 +12,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import sys
+from openai import OpenAI
 
 # 配置日志
 logging.basicConfig(
@@ -78,25 +79,22 @@ class V2EXMonitor:
     def _extract_codes_with_ai(self, content: str) -> Optional[Dict]:
         """使用AI提取激活码和附言信息"""
         try:
-            response = requests.post(
-                os.getenv("OPENROUTER_API_URL"),
-                headers={
-                    "Authorization": "Bearer %s" % os.getenv("OPENROUTER_API_KEY"),
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": "meta-llama/llama-3.3-70b-instruct:free",
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "请从文本中提取激活码和附言信息。如果有激活码，请提取出来；如果有附言，请提取时间和其中的激活码。返回的数据不要是 markdown 格式，就是纯文本信息，每行只包含激活码，每行一个。如果有附言，附言中的激活码也是每一行一个。",
-                        },
-                        {"role": "user", "content": content},
-                    ],
-                },
+            client = OpenAI(
+                base_url=os.getenv("AI_API_URL"),
+                api_key=os.getenv("AI_API_KEY"),
             )
-            response.raise_for_status()
-            return response.json()["choices"][0]["message"]["content"]
+            response = client.chat.completions.create(
+                model=os.getenv("AI_MODEL"),
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "请从文本中提取激活码和附言信息。如果有激活码，请提取出来；如果有附言，请提取时间和其中的激活码。返回的数据不要是 markdown 格式，就是纯文本信息，每行只包含激活码，每行一个。如果有附言，附言中的激活码也是每一行一个。",
+                    },
+                    {"role": "user", "content": content},
+                ],
+                temperature=0.8,
+            )
+            return response.choices[0].message.content
         except Exception as e:
             logging.error("AI提取信息失败: %s", e)
             return None
