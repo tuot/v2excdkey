@@ -88,7 +88,12 @@ class V2EXMonitor:
                 messages=[
                     {
                         "role": "system",
-                        "content": "请从文本中提取激活码和附言信息。如果有激活码，请提取出来；如果有附言，请提取时间和其中的激活码。返回的数据不要是 markdown 格式，就是纯文本信息，每行只包含激活码，每行一个。如果有附言，附言中的激活码也是每一行一个。",
+                        "content": """Extract activation codes and postscript information from the text.
+If there are activation codes in the main text, extract them — one code per line.
+If there is a postscript (e.g., marked as "P.S.", "附言", etc.), extract both the timestamp (in YYYY-MM-DD HH:MM:SS format) and any activation codes within it.
+In the final output, first list all activation codes from the main text (one per line).
+Then insert a blank line. After that, include the postscript time as Postscript time: YYYY-MM-DD HH:MM:SS, followed by any activation codes found in the postscript, also one per line.
+Return plain text only (no markdown, no formatting).""",
                     },
                     {"role": "user", "content": content},
                 ],
