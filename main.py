@@ -188,9 +188,7 @@ Return plain text only (no markdown, no formatting).""",
                     continue
 
             # 提取信息
-            extracted_info = self._extract_codes_with_ai(content)
-            if not extracted_info:
-                continue
+            extracted_info = self._extract_codes_with_ai(content) or ""
 
             # 发送通知
             logging.info("发现新激活码: %s", extracted_info)
