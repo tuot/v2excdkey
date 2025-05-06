@@ -14,3 +14,21 @@ services:
       options:
         max-size: "10m"
         max-file: "3" 
+    networks:
+      - v2ex-monitor
+
+  crawl4ai:
+    image: unclecode/crawl4ai
+    container_name: crawl4ai
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:11235:11235"
+    shm_size: '1g'
+    networks:
+      - v2ex-monitor
+
+networks:
+  v2ex-monitor:
+    driver: bridge

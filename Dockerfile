@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     curl && rm -rf /var/lib/apt/lists/*
 
+ENV UV_PROJECT_ENVIRONMENT=/usr/local
 # 复制依赖文件
 COPY pyproject.toml uv.lock* ./
 
@@ -20,4 +21,4 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 
 # 运行应用
-CMD ["uv","run", "main.py"]
+CMD ["python", "main.py"]

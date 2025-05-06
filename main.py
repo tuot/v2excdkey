@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from newspaper import Article
 from dotenv import load_dotenv
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -22,6 +22,20 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout),  # 输出到标准输出
     ],
 )
+
+
+class Crawl4Ai:
+    def __init__(self, base_url: str = "http://localhost:11235"):
+        self.base_url = base_url
+
+    def submit_and_wait(
+        self, request_data: Dict[str, Any], timeout: int = 60
+    ) -> Dict[str, Any]:
+        # Submit crawl job
+        response = requests.post(f"{self.base_url}/crawl", json=request_data)
+        if response.status_code == 200:
+            return response.json()
+        raise Exception(f"Failed to submit crawl job: {response.text}")
 
 
 class V2EXMonitor:
@@ -66,12 +80,11 @@ class V2EXMonitor:
 
     def _scrape_content(self, url: str) -> Optional[str]:
         """抓取帖子内容"""
+        tester = Crawl4Ai(os.getenv("CRAWL4AI_BASE_URL"))
         try:
-            response = requests.post(
-                os.getenv("SCRAPE_API_URL"), json={"formats": ["markdown"], "url": url}
-            )
-            response.raise_for_status()
-            return response.json()["data"]["markdown"]
+            request = {"urls": [url], "priority": 10}
+            result = tester.submit_and_wait(request)
+            return result["results"][0]["markdown"]["raw_markdown"]
         except Exception as e:
             logging.error("抓取内容失败: %s", e)
             return None
