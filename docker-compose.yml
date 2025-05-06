@@ -21,8 +21,6 @@ services:
     image: unclecode/crawl4ai
     container_name: crawl4ai
     restart: unless-stopped
-    env_file:
-      - .env
     ports:
       - "127.0.0.1:11235:11235"
     shm_size: '1g'

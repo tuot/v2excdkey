@@ -24,6 +24,34 @@ logging.basicConfig(
 )
 
 
+PROMPT = """
+Please act as an information extraction assistant to process the forum post content I provide, which is in Markdown format and includes:
+
+- The original post content by the thread starter (OP)
+- Any postscript (PS) or additional notes by the OP
+- Replies from other users
+
+The post involves distribution of activation codes or redemption codes. Please complete the following tasks:
+
+1. Extract **all activation codes and redemption codes** from the OP’s main post and any postscript. The codes may have various formats (letters, numbers, mixed, possibly with separators) and usually look like serial keys.
+
+2. **Exclude any activation or redemption codes mentioned as used or redeemed** in other users’ replies, i.e., if a reply states a code is "used," "redeemed," "invalid," or similar, exclude that code.
+
+3. Output all activation or redemption codes that are **originally posted by the OP and not confirmed as used**, each code on its own line.
+
+4. Ignore any text unrelated to activation or redemption codes and do not output anything else.
+
+Example output format:
+```
+CODE-123-ABCD
+ACTIVATE-XYZ-7890
+FREEKEY-000111
+```
+
+Please ensure that only codes issued by the OP and not confirmed as used are included.
+"""
+
+
 class Crawl4Ai:
     def __init__(self, base_url: str = "http://localhost:11235"):
         self.base_url = base_url
@@ -101,12 +129,7 @@ class V2EXMonitor:
                 messages=[
                     {
                         "role": "system",
-                        "content": """Extract activation codes and postscript information from the text.
-If there are activation codes in the main text, extract them — one code per line.
-If there is a postscript (e.g., marked as "P.S.", "附言", etc.), extract both the timestamp (in YYYY-MM-DD HH:MM:SS format) and any activation codes within it.
-In the final output, first list all activation codes from the main text (one per line).
-Then insert a blank line. After that, include the postscript time as Postscript time: YYYY-MM-DD HH:MM:SS, followed by any activation codes found in the postscript, also one per line.
-Return plain text only (no markdown, no formatting).""",
+                        "content": PROMPT,
                     },
                     {"role": "user", "content": content},
                 ],
