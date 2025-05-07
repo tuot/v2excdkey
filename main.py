@@ -70,7 +70,7 @@ class V2EXMonitor:
     def __init__(self):
         load_dotenv()
         self.storage_file = os.getenv("STORAGE_FILE", "processed_posts.json")
-        self.keywords = os.getenv("KEYWORDS", "送,码,兑换码,激活码").split(",")
+        self.keywords = os.getenv("KEYWORDS", "送码,兑换码,激活码").split(",")
         self.processed_posts = self._load_processed_posts()
 
     def _load_processed_posts(self) -> Dict:
@@ -99,7 +99,17 @@ class V2EXMonitor:
     def _get_latest_posts(self) -> List[Dict]:
         """获取最新的帖子"""
         try:
-            response = requests.get(os.getenv("V2EX_API_URL"))
+            url = os.getenv("V2EX_API_URL")
+            url = f"{url}?t={int(time.time() * 1000)}"
+            response = requests.get(
+                os.getenv("V2EX_API_URL"),
+                headers={
+                    "Cache-Control": "no-store",
+                    "Pragma": "no-cache",
+                    "Expires": "0",
+                },
+                timeout=60,
+            )
             response.raise_for_status()
             return response.json()
         except Exception as e:
