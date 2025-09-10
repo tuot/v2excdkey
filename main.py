@@ -120,7 +120,20 @@ class V2EXMonitor:
         """抓取帖子内容"""
         tester = Crawl4Ai(os.getenv("CRAWL4AI_BASE_URL"))
         try:
-            request = {"urls": [url], "priority": 10}
+            request = {
+                "urls": [url],
+                "browser_config": {
+                    "type": "BrowserConfig",
+                    "params": {"headless": True},
+                },
+                "crawler_config": {
+                    "type": "CrawlerRunConfig",
+                    "params": {
+                        "stream": False,
+                        "cache_mode": "bypass",
+                    },
+                },
+            }
             result = tester.submit_and_wait(request)
             return result["results"][0]["markdown"]["raw_markdown"]
         except Exception as e:
