@@ -1,16 +1,17 @@
-import os
 import json
-import time
-import requests
-import pytz
 import logging
-from datetime import datetime
-from dotenv import load_dotenv
-from typing import Dict, List, Optional
+import os
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import sys
+import time
+from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from typing import Dict, List, Optional
+
+import pytz
+import requests
+from dotenv import load_dotenv
 from openai import OpenAI
 
 # 配置日志
@@ -223,16 +224,20 @@ class V2EXMonitor:
         """运行监控"""
         logging.info("开始监控V2EX帖子...")
         CRAWL_TIMEOUT = int(os.getenv("CRAWL_TIMEOUT", 60))
+        log_interval = max(1, 3600 // CRAWL_TIMEOUT)
+        check_count = 0
         while True:
             try:
-                logging.info(
-                    "检查V2EX帖子 %s",
-                    datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
-                )
                 self.process_posts()
-                logging.info("检查V2EX帖子完成")
+                check_count += 1
+                if check_count % log_interval == 0:
+                    logging.info(
+                        "已检查 %d 次, 最近检查时间 %s",
+                        check_count,
+                        datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
+                    )
                 time.sleep(CRAWL_TIMEOUT)  # 每分钟检查一次
             except Exception as e:
                 logging.error("监控过程出错: %s", e)
