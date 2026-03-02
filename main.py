@@ -54,9 +54,29 @@ Please ensure that only codes issued by the OP and not confirmed as used are inc
 class V2EXMonitor:
     def __init__(self):
         load_dotenv()
-        self.storage_file = os.getenv("STORAGE_FILE", "processed_posts.json")
+        self.storage_file = self._resolve_storage_file()
         self.keywords = os.getenv("KEYWORDS", "").split(",")
         self.processed_posts = self._load_processed_posts()
+
+    def _resolve_storage_file(self) -> str:
+        default_filename = "processed_posts.json"
+        default_storage_dir = "/appdata" if os.path.isdir("/appdata") else "."
+        storage_file = os.getenv("STORAGE_FILE", "").strip()
+
+        if not storage_file:
+            resolved_storage_file = os.path.join(default_storage_dir, default_filename)
+        elif storage_file.endswith("/") or os.path.isdir(storage_file):
+            resolved_storage_file = os.path.join(storage_file, default_filename)
+        elif not os.path.isabs(storage_file) and default_storage_dir == "/appdata":
+            resolved_storage_file = os.path.join(default_storage_dir, storage_file)
+        else:
+            resolved_storage_file = storage_file
+
+        storage_dir = os.path.dirname(resolved_storage_file)
+        if storage_dir:
+            os.makedirs(storage_dir, exist_ok=True)
+
+        return resolved_storage_file
 
     def _load_processed_posts(self) -> Dict:
         """加载已处理的帖子记录"""
