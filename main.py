@@ -1,12 +1,9 @@
 import json
 import logging
 import os
-import smtplib
 import sys
 import time
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from typing import Dict, List, Optional
 
 import pytz
@@ -129,12 +126,7 @@ class V2EXMonitor:
 
     def _send_notification(self, title: str, content: str):
         """发送通知"""
-        notification_type = os.getenv("NOTIFICATION_TYPE", "bark")
-
-        if notification_type == "bark":
-            self._send_bark_notification(title, content)
-        elif notification_type == "email":
-            self._send_email_notification(title, content)
+        self._send_bark_notification(title, content)
 
     def _send_bark_notification(self, title: str, content: str):
         """发送Bark通知"""
@@ -149,26 +141,6 @@ class V2EXMonitor:
             )
         except Exception as e:
             logging.error("发送Bark通知失败: %s", e)
-
-    def _send_email_notification(self, title: str, content: str):
-        """发送邮件通知"""
-        try:
-            msg = MIMEMultipart()
-            msg["From"] = os.getenv("EMAIL_USERNAME")
-            msg["To"] = os.getenv("EMAIL_RECIPIENT")
-            msg["Subject"] = title
-
-            msg.attach(MIMEText(content, "plain"))
-
-            server = smtplib.SMTP(
-                os.getenv("EMAIL_SMTP_SERVER"), int(os.getenv("EMAIL_SMTP_PORT"))
-            )
-            server.starttls()
-            server.login(os.getenv("EMAIL_USERNAME"), os.getenv("EMAIL_PASSWORD"))
-            server.send_message(msg)
-            server.quit()
-        except Exception as e:
-            logging.error("发送邮件通知失败: %s", e)
 
     def process_posts(self):
         """处理帖子"""
